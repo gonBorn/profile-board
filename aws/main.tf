@@ -22,8 +22,15 @@ resource "aws_db_instance" "profile_board_db" {
   skip_final_snapshot  = true
 }
 
+# Find AMI ID for Amazon Linux 2 in ap-southeast-2 region
+#  aws ec2 describe-images \
+#       --owners amazon \
+#       --filters "Name=name,Values=amzn2-ami-hvm-*-x86_64-gp2" "Name=state,Values=available" \
+#       --region ap-southeast-2 \
+#       --query "Images | sort_by(@,&CreationDate)[-1].ImageId" \
+#       --output text
 resource "aws_instance" "profile_board_ec2" {
-  ami           = "ami-0c9a97f8818a58b20" # Amazon Linux 2 AMI (ap-southeast-2)
+  ami           = "ami-00b2df6cb966e5b60" # Amazon Linux 2 AMI (ap-southeast-2)
   instance_type = "t3.micro"
   key_name      = "profile-board-key"
 
