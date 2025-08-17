@@ -11,7 +11,7 @@ resource "aws_db_instance" "profile_board_db" {
   engine               = "postgres"
   engine_version       = "17.6"
   instance_class       = "db.t3.micro"
-  name                 = "profileboarddb"
+  db_name              = "profileboarddb"
   username             = "local"
   password             = var.db_password
   parameter_group_name = "default.postgres17"
