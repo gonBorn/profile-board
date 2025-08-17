@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "ap-southeast-2"
+  region = var.region
 }
 
 resource "aws_ecr_repository" "profile_board" {
@@ -91,4 +91,10 @@ variable "db_password" {
   description = "The password for the RDS database."
   type        = string
   sensitive   = true
+}
+
+variable "region" {
+  description = "AWS region to deploy resources."
+  type        = string
+  default     = "ap-southeast-2"
 }
