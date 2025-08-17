@@ -66,6 +66,7 @@
         "ecr:UploadLayerPart",
         "ecr:CompleteLayerUpload",
         "ecr:DescribeRepositories",
+        "ecr:ListTagsForResource",
         "ecr:CreateRepository"
       ],
       "Resource": "*"

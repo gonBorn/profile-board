@@ -1,61 +1,47 @@
-name: Build and Push Docker Image to ECR
+name: Build and Deploy Profile Board
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  build-and-push:
+  checkout:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+  build:
+    runs-on: ubuntu-latest
+    needs: checkout
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '21'
-
       - name: Build jar
         run: ./gradlew build
 
+  docker-push:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-southeast-2
-
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v3
-
-      - name: Terraform Init
-        run: terraform -chdir=aws init
-
-      - name: Terraform Import ECR
-        run: terraform -chdir=aws import aws_ecr_repository.profile_board profile-board || true
-        env:
-          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
-
-      - name: Ensure RDS Service-Linked Role
-        env:
-          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
-        run: |
-          aws iam create-service-linked-role --aws-service-name rds.amazonaws.com || echo "Role exists"
-
-      - name: Terraform Apply
-        env:
-          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
-        run: terraform -chdir=aws apply -auto-approve
-
       - name: Log in to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-
       - name: Build and push Docker image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -64,3 +50,56 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+  terraform-init:
+    runs-on: ubuntu-latest
+    needs: docker-push
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-southeast-2
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+      - name: Terraform Init
+        run: terraform -chdir=aws init
+
+  terraform-import:
+    runs-on: ubuntu-latest
+    needs: terraform-init
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-southeast-2
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+      - name: Terraform Import ECR
+        run: terraform -chdir=aws import aws_ecr_repository.profile_board profile-board || true
+
+  terraform-apply:
+    runs-on: ubuntu-latest
+    needs: terraform-import
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-southeast-2
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+      - name: Terraform Apply
+        env:
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+        run: terraform -chdir=aws apply -auto-approve
