@@ -36,6 +36,11 @@ jobs:
       - name: Terraform Init
         run: terraform -chdir=aws init
 
+      - name: Terraform Import ECR
+        run: terraform -chdir=aws import aws_ecr_repository.profile_board profile-board || true
+        env:
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+
       - name: Terraform Apply
         env:
           TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}

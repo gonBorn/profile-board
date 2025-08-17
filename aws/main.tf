@@ -4,10 +4,6 @@ provider "aws" {
 
 resource "aws_ecr_repository" "profile_board" {
   name = "profile-board"
-
-  lifecycle {
-    ignore_changes = all
-  }
 }
 
 resource "aws_db_instance" "profile_board_db" {
