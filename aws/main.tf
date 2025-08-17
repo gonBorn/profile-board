@@ -19,7 +19,7 @@ resource "aws_db_instance" "profile_board_db" {
 }
 
 resource "aws_instance" "profile_board_ec2" {
-  ami           = "ami-0e5f882be1900dd7c" # Amazon Linux 2 AMI (ap-southeast-1)
+  ami           = "ami-0c9a97f8818a58b20" # Amazon Linux 2 AMI (ap-southeast-2)
   instance_type = "t3.micro"
   key_name      = "profile-board-key"
 
@@ -29,7 +29,7 @@ resource "aws_instance" "profile_board_ec2" {
     yum install -y docker git
     service docker start
     usermod -a -G docker ec2-user
-    aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin ${aws_ecr_repository.profile_board.repository_url}
+    aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin ${aws_ecr_repository.profile_board.repository_url}
     docker pull ${aws_ecr_repository.profile_board.repository_url}:latest
     docker run -d -p 8080:8080 ${aws_ecr_repository.profile_board.repository_url}:latest
   EOF
