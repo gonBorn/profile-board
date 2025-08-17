@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd $(dirname ${BASH_SOURCE[0]})/..
+
+trap 'docker compose down --remove-orphans' 0
+
+DEFAULT_CMD=(./gradlew --no-daemon clean run)
+
+docker compose down --remove-orphans
+docker compose run --rm --use-aliases --service-ports dev "${@-${DEFAULT_CMD[@]}}"
