@@ -32,7 +32,8 @@
         "ec2:DescribeNatGateways",
         "ec2:RevokeSecurityGroupIngress",
         "ec2:DescribeImages",
-        "ec2:RevokeSecurityGroupEgress"
+        "ec2:RevokeSecurityGroupEgress",
+        "ec2:CreateTags"
       ],
       "Resource": "*"
     },
