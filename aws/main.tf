@@ -80,7 +80,12 @@ resource "aws_api_gateway_integration" "heartbeat_integration" {
 resource "aws_api_gateway_deployment" "profile_board_api_deployment" {
   depends_on = [aws_api_gateway_integration.heartbeat_integration]
   rest_api_id = aws_api_gateway_rest_api.profile_board_api.id
-  stage_name  = "prod"
+}
+
+resource "aws_api_gateway_stage" "prod" {
+  rest_api_id    = aws_api_gateway_rest_api.profile_board_api.id
+  deployment_id  = aws_api_gateway_deployment.profile_board_api_deployment.id
+  stage_name     = "prod"
 }
 
 output "api_gateway_invoke_url" {
