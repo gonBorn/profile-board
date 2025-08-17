@@ -41,6 +41,12 @@ jobs:
         env:
           TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
 
+      - name: Ensure RDS Service-Linked Role
+        env:
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+        run: |
+          aws iam create-service-linked-role --aws-service-name rds.amazonaws.com || echo "Role exists"
+
       - name: Terraform Apply
         env:
           TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
