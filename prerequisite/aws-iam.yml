@@ -35,8 +35,14 @@
         "ec2:RevokeSecurityGroupEgress",
         "ec2:CreateTags",
         "ec2:DescribeTags",
+        "ec2:DescribeInstanceTypes",
+        "ec2:DescribeInstances",
         "ec2:DescribeInstanceAttribute",
-        "ec2:DescribeInstanceTypes"
+        "ec2:DescribeInstanceCreditSpecifications",
+        "ec2:DescribeInstanceStatus",
+        "ec2:DescribeInstanceTypes",
+        "ec2:DescribeInstanceTypeOfferings",
+        "ec2:DescribeVolumes"
       ],
       "Resource": "*"
     },

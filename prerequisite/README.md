@@ -1,6 +1,7 @@
 ## Manual Steps
 
 1. Create an IAM user with inline policy, refer to [aws-iam.yml](aws-iam.yml) for details.
+   - Add api gateway access (not in inline policy)
 2. Create an access key for the IAM user.
 3. Set up on GitHub
    - https://github.com/gonBorn/profile-board/settings/secrets/actions
