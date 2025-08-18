@@ -153,7 +153,7 @@ resource "aws_instance" "profile_board_ec2" {
   key_name               = "profile-board-key"
   vpc_security_group_ids = [aws_security_group.ec2_sg.id]
   associate_public_ip_address = false
-  subnet_id                  = data.aws_subnets.private.ids[0]
+  subnet_id                  = aws_subnet.private.id
 
   user_data = <<-EOF
     #!/bin/bash
