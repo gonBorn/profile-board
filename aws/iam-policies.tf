@@ -21,6 +21,10 @@ resource "aws_iam_policy" "profile_board_ec2_vpc" {
 
   policy = file("${path.module}/iam-ec2-vpc.json")
 
+  lifecycle {
+    ignore_changes = [policy]
+  }
+
   tags = {
     Name        = "ProfileBoard-EC2-VPC"
     Environment = "Infrastructure"
@@ -35,6 +39,10 @@ resource "aws_iam_policy" "profile_board_api_elb" {
   description = "IAM policy for API Gateway and Elastic Load Balancer management"
 
   policy = file("${path.module}/iam-api-elb.json")
+
+  lifecycle {
+    ignore_changes = [policy]
+  }
 
   tags = {
     Name        = "ProfileBoard-API-ELB"
@@ -51,6 +59,10 @@ resource "aws_iam_policy" "profile_board_rds_ecr" {
 
   policy = file("${path.module}/iam-rds-ecr.json")
 
+  lifecycle {
+    ignore_changes = [policy]
+  }
+
   tags = {
     Name        = "ProfileBoard-RDS-ECR"
     Environment = "Infrastructure"
@@ -65,6 +77,10 @@ resource "aws_iam_policy" "profile_board_iam_sts" {
   description = "IAM policy for IAM role management and STS operations"
 
   policy = file("${path.module}/iam-roles-sts.json")
+
+  lifecycle {
+    ignore_changes = [policy]
+  }
 
   tags = {
     Name        = "ProfileBoard-IAM-STS"

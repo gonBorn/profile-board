@@ -38,6 +38,12 @@ jobs:
         uses: hashicorp/setup-terraform@v3
       - name: Terraform Init (IAM Policies)
         run: terraform -chdir=aws init
+      - name: Import existing IAM policies (if they exist)
+        run: |
+          terraform -chdir=aws import aws_iam_policy.profile_board_ec2_vpc arn:aws:iam::085366697881:policy/ProfileBoard-EC2-VPC || true
+          terraform -chdir=aws import aws_iam_policy.profile_board_api_elb arn:aws:iam::085366697881:policy/ProfileBoard-API-ELB || true
+          terraform -chdir=aws import aws_iam_policy.profile_board_rds_ecr arn:aws:iam::085366697881:policy/ProfileBoard-RDS-ECR || true
+          terraform -chdir=aws import aws_iam_policy.profile_board_iam_sts arn:aws:iam::085366697881:policy/ProfileBoard-IAM-STS || true
       - name: Terraform Plan (IAM Policies)
         run: |
           terraform -chdir=aws plan \
