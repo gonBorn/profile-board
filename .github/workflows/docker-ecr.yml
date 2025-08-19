@@ -25,35 +25,52 @@ jobs:
       - name: Build jar
         run: ./gradlew build
 
-  docker-push:
+  terraform-iam:
     runs-on: ubuntu-latest
-    needs: build
+    needs: checkout
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-southeast-2
-      - name: Log in to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-      - name: Build and push Docker image
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+      - name: Terraform Init (IAM Policies)
+        run: terraform -chdir=aws init
+      - name: Terraform Plan (IAM Policies)
         env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: profile-board
-          IMAGE_TAG: latest
+          TF_VAR_iam_user_arn: ${{ secrets.IAM_USER_ARN }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          terraform -chdir=aws plan \
+            -target=aws_iam_policy.profile_board_ec2_vpc \
+            -target=aws_iam_policy.profile_board_api_elb \
+            -target=aws_iam_policy.profile_board_rds_ecr \
+            -target=aws_iam_policy.profile_board_iam_sts \
+            -target=aws_iam_user_policy_attachment.ec2_vpc_attachment \
+            -target=aws_iam_user_policy_attachment.api_elb_attachment \
+            -target=aws_iam_user_policy_attachment.rds_ecr_attachment \
+            -target=aws_iam_user_policy_attachment.iam_sts_attachment
+      - name: Terraform Apply (IAM Policies)
+        env:
+          TF_VAR_iam_user_arn: ${{ secrets.IAM_USER_ARN }}
+        run: |
+          terraform -chdir=aws apply -auto-approve \
+            -target=aws_iam_policy.profile_board_ec2_vpc \
+            -target=aws_iam_policy.profile_board_api_elb \
+            -target=aws_iam_policy.profile_board_rds_ecr \
+            -target=aws_iam_policy.profile_board_iam_sts \
+            -target=aws_iam_user_policy_attachment.ec2_vpc_attachment \
+            -target=aws_iam_user_policy_attachment.api_elb_attachment \
+            -target=aws_iam_user_policy_attachment.rds_ecr_attachment \
+            -target=aws_iam_user_policy_attachment.iam_sts_attachment
 
-  terraform-iam:
+  docker-push:
     runs-on: ubuntu-latest
-    needs: docker-push
+    needs: [build, terraform-iam]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -96,7 +113,7 @@ jobs:
 
   terraform-db:
     runs-on: ubuntu-latest
-    needs: terraform-iam
+    needs: docker-push
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -118,7 +135,7 @@ jobs:
 
   terraform-apply:
     runs-on: ubuntu-latest
-    needs: [terraform-iam, terraform-db]
+    needs: [docker-push, terraform-db]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
