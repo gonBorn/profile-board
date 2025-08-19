@@ -1,6 +1,8 @@
 ## Manual Steps
 
 1. Create an IAM user and access key for the IAM user.
+2. Add IAM policies:
+    - `IAMFullAccess`
 2. Set up on GitHub
    - https://github.com/gonBorn/profile-board/settings/secrets/actions
    - Add the following secrets:
