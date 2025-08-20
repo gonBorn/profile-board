@@ -25,7 +25,6 @@ jobs:
 
   terraform-iam:
     runs-on: ubuntu-latest
-    if: contains(github.event.head_commit.modified, 'aws/iam-') || contains(github.event.head_commit.added, 'aws/iam-') || contains(github.event.head_commit.modified, 'aws/iam-policies.tf') || contains(github.event.head_commit.added, 'aws/iam-policies.tf')
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -45,6 +44,10 @@ jobs:
           terraform -chdir=aws import aws_iam_policy.profile_board_api_elb arn:aws:iam::085366697881:policy/ProfileBoard-API-ELB || true
           terraform -chdir=aws import aws_iam_policy.profile_board_rds_ecr arn:aws:iam::085366697881:policy/ProfileBoard-RDS-ECR || true
           terraform -chdir=aws import aws_iam_policy.profile_board_iam_sts arn:aws:iam::085366697881:policy/ProfileBoard-IAM-STS || true
+          terraform -chdir=aws import aws_iam_user_policy_attachment.ec2_vpc_attachment $(echo "${{ env.TF_VAR_iam_user_arn }}" | sed 's/.*\///')/arn:aws:iam::085366697881:policy/ProfileBoard-EC2-VPC || true
+          terraform -chdir=aws import aws_iam_user_policy_attachment.api_elb_attachment $(echo "${{ env.TF_VAR_iam_user_arn }}" | sed 's/.*\///')/arn:aws:iam::085366697881:policy/ProfileBoard-API-ELB || true
+          terraform -chdir=aws import aws_iam_user_policy_attachment.rds_ecr_attachment $(echo "${{ env.TF_VAR_iam_user_arn }}" | sed 's/.*\///')/arn:aws:iam::085366697881:policy/ProfileBoard-RDS-ECR || true
+          terraform -chdir=aws import aws_iam_user_policy_attachment.iam_sts_attachment $(echo "${{ env.TF_VAR_iam_user_arn }}" | sed 's/.*\///')/arn:aws:iam::085366697881:policy/ProfileBoard-IAM-STS || true
       - name: Terraform Plan (IAM Policies)
         run: |
           terraform -chdir=aws plan \
