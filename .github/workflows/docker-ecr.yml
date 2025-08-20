@@ -142,12 +142,14 @@ jobs:
             -target=aws_internet_gateway.profile_board_igw \
             -target=aws_subnet.public \
             -target=aws_subnet.private \
+            -target=aws_subnet.private_2b \
             -target=aws_eip.nat_eip \
             -target=aws_nat_gateway.profile_board_nat \
             -target=aws_route_table.public_rt \
             -target=aws_route_table.private_rt \
             -target=aws_route_table_association.public_rta \
             -target=aws_route_table_association.private_rta \
+            -target=aws_route_table_association.private_rta_2b \
             -target=aws_security_group.ec2_sg \
             -target=aws_security_group.nlb_sg \
             -target=aws_security_group.db_sg \

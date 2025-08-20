@@ -41,7 +41,18 @@ resource "aws_subnet" "private" {
   availability_zone = "ap-southeast-2a"
 
   tags = {
-    Name = "profile-board-private-subnet"
+    Name = "profile-board-private-subnet-2a"
+  }
+}
+
+# Additional Private Subnet for RDS (different AZ)
+resource "aws_subnet" "private_2b" {
+  vpc_id            = aws_vpc.profile_board_vpc.id
+  cidr_block        = "10.0.3.0/24"
+  availability_zone = "ap-southeast-2b"
+
+  tags = {
+    Name = "profile-board-private-subnet-2b"
   }
 }
 
@@ -106,6 +117,12 @@ resource "aws_route_table_association" "private_rta" {
   route_table_id = aws_route_table.private_rt.id
 }
 
+# Associate Private Subnet 2b with Private Route Table
+resource "aws_route_table_association" "private_rta_2b" {
+  subnet_id      = aws_subnet.private_2b.id
+  route_table_id = aws_route_table.private_rt.id
+}
+
 # ECR Repository
 resource "aws_ecr_repository" "profile_board" {
   name = "profile-board"
@@ -118,7 +135,7 @@ resource "aws_ecr_repository" "profile_board" {
 # Database Subnet Group
 resource "aws_db_subnet_group" "profile_board_db_subnet_group" {
   name       = "profile-board-db-subnet-group"
-  subnet_ids = [aws_subnet.private.id, aws_subnet.public.id]
+  subnet_ids = [aws_subnet.private.id, aws_subnet.private_2b.id]
 
   tags = {
     Name = "profile-board-db-subnet-group"
@@ -380,6 +397,11 @@ output "vpc_id" {
 output "private_subnet_id" {
   description = "ID of the private subnet"
   value       = aws_subnet.private.id
+}
+
+output "private_subnet_2b_id" {
+  description = "ID of the private subnet in AZ 2b"
+  value       = aws_subnet.private_2b.id
 }
 
 output "ec2_instance_id" {
