@@ -125,6 +125,14 @@ docker run -p 8080:8080 profile-board:latest
 
 ## Kubernetes 部署
 
+### 前提条件
+```bash
+brew install minikube
+minikube start --driver=docker
+kubectl config get-contexts
+kubectl get nodes
+```
+
 ### 自动化部署脚本
 
 使用 `auto/deploy-and-test.sh` 脚本可以一键部署应用到 Kubernetes 集群：
