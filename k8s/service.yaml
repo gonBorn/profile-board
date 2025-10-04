@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: profile-board-service
+  labels:
+    app: profile-board
+spec:
+  type: NodePort
+  selector:
+    app: profile-board
+  ports:
+    - name: http
+#      HTTP 协议是基于 TCP 传输层协议的应用层协议
+#      可靠传输：TCP 提供可靠的、有序的数据传输，适合 HTTP 请求/响应模式
+#      虽然不写 protocol: TCP 也会默认使用 TCP
+      protocol: TCP
+#      作用：Service 在集群内部暴露的端口
+#      访问方式：集群内其他 Pod 通过 profile-board-service:8080 访问
+#      流量来源：来自集群内部的其他服务或 Pod
+      port: 8080
+#      targetPort： Pod 容器端口,对应app里定义的端口
+      targetPort: 8080
+#      3. nodePort: 30080 - 节点外部端口
+      #作用：每个集群节点对外暴露的端口
+      #访问方式：外部用户通过 http://<NodeIP>:30080 访问
+      #端口范围：NodePort 必须在 30000-32767 范围内
+      nodePort: 30080
+  sessionAffinity: None

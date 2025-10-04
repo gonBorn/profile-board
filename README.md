@@ -1,5 +1,6 @@
 # Profile Board
-Use IaC way to deploy a backend server on AWS EC2 
+
+Use IaC way to deploy a backend server on AWS EC2
 
 ## Architecture
 
@@ -113,6 +114,83 @@ graph TB
 ```bash
 auto/dev
 ```
+
+```bash
+docker build -t profile-board:latest .
+```
+
+```bash
+docker run -p 8080:8080 profile-board:latest
+```
+
+## Kubernetes 部署
+
+### 自动化部署脚本
+
+使用 `auto/deploy-and-test.sh` 脚本可以一键部署应用到 Kubernetes 集群：
+
+```bash
+cd auto
+./deploy-and-test.sh
+```
+
+该脚本会自动执行以下步骤：
+
+1. 检查 kubectl 集群连接
+2. 应用 Deployment 配置 (`k8s/development.yaml`)
+3. 应用 Service 配置 (`k8s/service.yaml`)
+4. 等待 Pod 就绪
+5. 检查部署状态
+6. 自动检测 K8s 环境类型（minikube/Docker Desktop）
+7. 提供正确的访问 URL
+8. 测试服务连通性
+
+### 手动部署
+
+如果需要手动部署，可以分步执行：
+
+```bash
+# 部署应用
+kubectl apply -f k8s/development.yaml
+
+# 创建服务
+kubectl apply -f k8s/service.yaml
+
+# 查看状态
+kubectl get pods
+kubectl get svc
+kubectl logs <pod-name>
+```
+
+### 访问应用
+
+部署完成后，根据你的 K8s 环境访问应用：
+
+- **Minikube**: `http://<minikube-ip>:30080/heartbeat`
+- **Docker Desktop**: `http://localhost:30080/heartbeat`
+- **端口转发**:
+  ```bash
+  kubectl port-forward svc/profile-board-service 8080:8080
+  # 然后访问 http://localhost:8080/heartbeat
+  ```
+
+## 推送镜像到 Docker Hub
+
+1. 登录 Docker Hub：
+   ```bash
+   docker login
+   ```
+   按提示输入你的 Docker Hub 用户名和密码。
+
+2. 给镜像打 tag（将 yourusername 替换为你的 Docker Hub 用户名）：
+   ```bash
+   docker tag profile-board:latest yourusername/profile-board:latest
+   ```
+
+3. 推送镜像到 Docker Hub：
+   ```bash
+   docker push yourusername/profile-board:latest
+   ```
 
 ### Reference Documentation
 

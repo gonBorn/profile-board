@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: profile-board
+spec:
+#  在 Kubernetes 中，Deployment 的 spec.replicas 字段用于指定期望同时运行的 Pod 副本数量。这里的“副本”指的是运行同一个应用的多个独立 Pod 实例。
+  #具体理解如下：
+  #每个 Pod 副本都是应用的一个独立运行实例，拥有自己的 IP、进程和资源。
+  #如果 replicas: 1，Kubernetes 会确保始终有 1 个 Pod 在运行。如果这个 Pod 挂掉，Kubernetes 会自动拉起一个新的 Pod 保证数量不变。
+  #如果 replicas: 3，Kubernetes 会同时运行 3 个内容完全相同的 Pod，通常用于负载均衡和高可用。
+  #副本之间是相互独立的，但运行的镜像、端口、环境变量等配置完全一致。
+  #总结：副本就是同一个应用的多个独立实例，Kubernetes 通过副本机制实现应用的高可用和弹性扩缩容。
+  replicas: 1
+#  selector 用于选择属于该 Deployment 的 Pod
+  selector:
+    matchLabels:
+      app: profile-board
+#  template 定义了 Pod 的模板。
+#  metadata.labels 设置 Pod 的标签为 app: profile-board，确保 selector 能正确匹配
+#  spec.containers 定义了 Pod 内的容器列表
+  template:
+    metadata:
+      labels:
+        app: profile-board
+    spec:
+      containers:
+        - name: profile-board
+          image: profile-board:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
