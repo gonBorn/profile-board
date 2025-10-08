@@ -157,12 +157,25 @@ cd auto
 
 如果需要手动部署，可以分步执行：
 
-```bash
 # 部署应用
-kubectl apply -f k8s/development.yaml
+kubectl apply -f k8s/deployment.yaml
+kubectl --context tw apply -f k8s/deployment-aws.yaml
+
+注：这里的tw是指你的K8s上下文名称，根据实际情况替换
+```bash
+aws eks update-kubeconfig \
+--region ap-southeast-2 \
+--name attractive-country-walrus \
+--profile PowerUserPlusRole-160071257600 \
+--alias tw
+```
 
 # 创建服务
 kubectl apply -f k8s/service.yaml
+
+kubectl --context tw apply -f k8s/service.yaml
+kubectl --context tw apply -f k8s/service-aws.yaml
+注：现在有点bug,直接创建LB会导致external ip一直是pending状态,所以先创建NodePort,等下再修改成LoadBalancer
 
 # 查看状态
 kubectl get pods

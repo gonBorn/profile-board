@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: profile-board
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: profile-board
+  template:
+    metadata:
+      labels:
+        app: profile-board
+    spec:
+      # tolerations 用于允许 Pod 调度到有 taint 的节点
+      tolerations:
+        - key: "CriticalAddonsOnly"
+          operator: "Exists"
+          effect: "NoSchedule"
+        - key: "karpenter.sh/disrupted"
+          operator: "Exists"
+          effect: "NoSchedule"
+      containers:
+        - name: profile-board
+          image: 160071257600.dkr.ecr.ap-southeast-2.amazonaws.com/profile-board:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
