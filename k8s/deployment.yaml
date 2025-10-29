@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: profile-board
+  namespace: profile-board-ns
 spec:
 #  在 Kubernetes 中，Deployment 的 spec.replicas 字段用于指定期望同时运行的 Pod 副本数量。这里的“副本”指的是运行同一个应用的多个独立 Pod 实例。
   #具体理解如下：
